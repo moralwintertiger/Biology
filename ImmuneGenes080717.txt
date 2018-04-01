@@ -1,0 +1,49 @@
+%For immune markers requested by Diana and Ellen, processed 080717. 
+%ifng related genes in red (cxcl9, cxcl10, ifng)
+%t cell genes in green (cd8a, cd8b, cd4, cd5)
+%other immune genes in blue2 (cd19, nrp1, itgam, stfa2l1)
+
+toxo <- read.csv("DEseq2.csv")
+names(toxo)[1] <- "genes"
+
+names(toxo)[2] <- "Uninfected_MOE_total_RNA"
+
+names(toxo)[3] <- "Infected_MOE_total_RNA"
+library(ggplot2)
+
+toxo1 <- subset(toxo, genes == "Cxcl10")
+toxo2 <- subset(toxo, genes == "Itgam")
+toxo3 <- subset(toxo, genes == "Cd19")
+toxo4 <- subset(toxo, genes == "Nrp1")
+toxo5 <- subset(toxo, genes == "Stfa2l1")
+toxo6 <- subset(toxo, genes == "Ifng")
+toxo7 <- subset(toxo, genes == "Cd8a")
+toxo8 <- subset(toxo, genes == "Cd8b")
+toxo9 <- subset(toxo, genes == "Cd4")
+toxo10 <- subset(toxo, genes == "Cd5")
+toxo11 <- subset(toxo, genes == "Cxcl9")
+
+
+
+
+ggplot(toxo, aes(log2(Uninfected_MOE_total_RNA), log2(Infected_MOE_total_RNA))) + geom_point(alpha=1/30) + geom_point(data=toxo1, colour="red") + geom_text(data=toxo1, label="Cxcl10", vjust=2, colour="red") + geom_point(data=toxo2, colour="cyan") + geom_text(data=toxo2, label="Itgam", vjust=2, colour="cyan")+ 
+
+geom_point(data=toxo3, colour="cyan") + geom_text(data=toxo3, label="Cd19", vjust=2, colour="cyan")+
+
+geom_point(data=toxo4, colour="cyan") + geom_text(data=toxo4, label="Nrp1", vjust=2, colour="cyan")+
+
+geom_point(data=toxo5, colour="cyan") + geom_text(data=toxo5, label="Stfa2l1", vjust=2, colour="cyan")+
+
+geom_point(data=toxo6, colour="red") + geom_text(data=toxo6, label="Ifng", vjust=2, colour="red")+
+
+geom_point(data=toxo7, colour="green4") + geom_text(data=toxo7, label="Cd8a", vjust=2, colour="green4")+
+
+geom_point(data=toxo8, colour="green4") + geom_text(data=toxo8, label="Cd8b", vjust=2, colour="green4")+
+
+geom_point(data=toxo9, colour="green4") + geom_text(data=toxo9, label="Cd4", vjust=2, colour="green4")+
+
+geom_point(data=toxo10, colour="green4") + geom_text(data=toxo10, label="Cd5", vjust=2, colour="green4")+
+
+geom_point(data=toxo11, colour="orange") + geom_text(data=toxo11, label="Cxcl9", vjust=4, colour="orange")+
+
+scale_x_continuous(limits = c(0, 15)) + scale_y_continuous(limits = c(0, 15))

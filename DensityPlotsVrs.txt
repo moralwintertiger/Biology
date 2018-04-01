@@ -1,0 +1,57 @@
+#density plots for ip/input in no odor vs odor, uninfected vs infected
+
+#no odor, infected
+
+#no odor, uninfected
+#odor, infected
+#odor, uninfected
+
+no odor:
+
+ctlfull1$log <- log(ctlfull1$ip.input, 2)
+toxofull1$log <- log(toxofull1$ip.input, 2)
+
+ctlfull2$log <- log(ctlfull2$ip.input, 2)
+toxofull2$log <- log(toxofull2$ip.input, 2)
+
+#density plot, uninfected vs infected w/ no odor, v1rs:
+
+dplotctl1 <- plot(density(ctlfull1$log), xlim=c(-10,10), ylim=c(0,.5), main="no odor density plot", col="red", lwd=4)
+par(new=TRUE)
+dplotinf1 <- plot(density(toxofull1$log), xlim=c(-10,10), ylim=c(0,.5), main="no odor density plot", col="blue", lwd=4)
+
+#density plot, uninfected vs infected w/ no odor, v2rs:
+
+dplotctl2 <- plot(density(ctlfull2$log), xlim=c(-10,10), ylim=c(0,.5), main="no odor density plot", col="red", lwd=4)
+par(new=TRUE)
+dplotinf2 <- plot(density(toxofull2$log), xlim=c(-10,10), ylim=c(0,.5), main="no odor density plot", col="blue", lwd=4)
+
+#density plot, uninfected odor vs no odor
+
+dplotctl1 <- plot(density(ctlfull1$log), xlim=c(-10,10), ylim=c(0,.5), main="", col="purple", lwd=4)
+par(new=TRUE)
+dplotctl1p <- plot(density(pctlfull1$log), xlim=c(-10,10), ylim=c(0,.5), main="uninfected V1Rs no odor vs odor", col="orange", lwd=4)
+
+dplotctl1 <- plot(density(ctlfull2$log), xlim=c(-10,10), ylim=c(0,.5), main="", col="purple", lwd=4)
+par(new=TRUE)
+dplotctl1p <- plot(density(pctlfull2$log), xlim=c(-10,10), ylim=c(0,.5), main="uninfected V2Rs no odor vs odor", col="orange", lwd=4)
+
+####density plot, infected odor vs no odor:
+
+dplotinf1 <- plot(density(toxofull1$log), xlim=c(-10,10), ylim=c(0,.5), main="", col="purple", lwd=4)
+par(new=TRUE)
+dplotinf1 <- plot(density(ptoxofull1$log), xlim=c(-10,10), ylim=c(0,.5), main="infected V1Rs, no odor vs odor", col="orange", lwd=4)
+
+dplotinf1 <- plot(density(toxofull2$log), xlim=c(-10,10), ylim=c(0,.5), main="", col="purple", lwd=4)
+par(new=TRUE)
+dplotinf1 <- plot(density(ptoxofull2$log), xlim=c(-10,10), ylim=c(0,.5), main="infected V2Rs, no odor vs odor", col="orange", lwd=4)
+
+###density plots, infected vs uninfected, plus odor
+
+dplotctl1p <- plot(density(pctlfull1$log), xlim=c(-10,10), ylim=c(0,.5), main="uninfected vs infected V1Rs with odor", col="red", lwd=4)
+par(new=TRUE)
+dplotinf1 <- plot(density(ptoxofull1$log), xlim=c(-10,10), ylim=c(0,.5), main="", col="blue", lwd=4)
+
+dplotctl1p <- plot(density(pctlfull2$log), xlim=c(-10,10), ylim=c(0,.5), main="uninfected vs infected V1Rs with odor", col="red", lwd=4)
+par(new=TRUE)
+dplotinf1 <- plot(density(ptoxofull2$log), xlim=c(-10,10), ylim=c(0,.5), main="", col="blue", lwd=4)

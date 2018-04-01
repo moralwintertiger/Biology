@@ -1,0 +1,77 @@
+#tunicamycin activity of olfrs. two samples from 3/19/17 for each pbs-injected and tunicamycin-injected. assess expression of upr-related genes and take averages of ip/input values for each. 
+
+#tunicamycin ips:
+
+ip1 <- read.csv("RDToxo031vsRDToxo033forR.csv", na.strings = c("NA","NaN","","#DIV/0!"))
+ip2 <- read.csv("RDToxo032vsRDToxo034forR.csv", na.strings = c("NA","NaN","","#DIV/0!"))
+input1 <- read.csv("RDToxo041vsRDToxo043foR.csv", na.strings = c("NA","NaN","","#DIV/0!"))
+input2 <- read.csv("RDToxo042vsRDToxo044foR.csv", na.strings = c("NA","NaN","","#DIV/0!"))
+
+tunip1 <- ip1 %>%
+select(Description,RDToxo031.FPKM) %>%
+filter(str_detect(Description, "olfactory receptor"))
+
+tunip2 <- ip2 %>%
+select(Description,RDToxo032.FPKM) %>%
+filter(str_detect(Description, "olfactory receptor"))
+
+pbsip1 <- ip1 %>%
+select(Description,RDToxo033.FPKM) %>%
+filter(str_detect(Description, "olfactory receptor"))
+
+pbsip2 <- ip2 %>%
+select(Description,RDToxo034.FPKM) %>%
+filter(str_detect(Description, "olfactory receptor"))
+
+tuninput1 <- input1 %>%
+select(Description,RDToxo041.FPKM) %>%
+filter(str_detect(Description, "olfactory receptor"))
+
+tuninput2 <- input2 %>%
+select(Description,RDToxo042.FPKM) %>%
+filter(str_detect(Description, "olfactory receptor"))
+
+pbsinput1 <- input1 %>%
+select(Description,RDToxo043.FPKM) %>%
+filter(str_detect(Description, "olfactory receptor"))
+
+pbsinput2 <- input2 %>%
+select(Description,RDToxo044.FPKM) %>%
+filter(str_detect(Description, "olfactory receptor"))
+
+#drop empty cells. In this case, empty is RPKM=.001
+
+tunip1 <- tunip1[ which(tunip1$RDToxo031.FPKM >0.001),]
+tunip2 <- tunip2[ which(tunip2$RDToxo032.FPKM >0.001),]
+pbsip1 <- pbsip1[ which(pbsip1$RDToxo033.FPKM >0.001),]
+pbsip2 <- pbsip2[ which(pbsip1$RDToxo034.FPKM >0.001),]
+tuninput1 <- tuninput1[ which(tuninput1$RDToxo041.FPKM >0.001),]
+tuninput2 <- tuninput2[ which(tuninput2$RDToxo042.FPKM >0.001),]
+pbsinput1 <- pbsinput1[ which(pbsinput1$RDToxo043.FPKM >0.001),]
+pbsinput2 <- pbsinput2[ which(pbsinput2$RDToxo044.FPKM >0.001),]
+
+tun1 <- merge(tunip1, tuninput1, by="Description")
+tun2 <- merge(tunip2, tuninput2, by="Description")
+pbs1 <- merge(pbsip1, pbsinput1, by="Description")
+pbs2 <- merge(pbsip2, pbsinput2, by="Description")
+
+tun <- merge(tun1, tun2, by="Description")
+pbs <- merge(pbs1, pbs2, by="Description")
+
+tun$ip.input <- (tun$RDToxo031.FPKM + tun$RDToxo032.FPKM) / (tun$RDToxo041.FPKM + tun$RDToxo042.FPKM)
+
+pbs$ip.input <- (pbs$RDToxo033.FPKM + pbs$RDToxo034.FPK) / (pbs$RDToxo043.FPKM + pbs$RDToxo044.FPKM)
+
+tun$log <- log(tun$ip.input, 2)
+pbs$log <- log(pbs$ip.input, 2)
+
+#density plots:
+
+tunplot <- plot(density(tun$log), xlim=c(-10,10), ylim=c(0,.25), main="tunicamycin vs pbs, plus bobcat", col="blue", lwd=4)
+par(new=TRUE)
+pbsplot <- plot(density(pbs$log), xlim=c(-10,10), ylim=c(0,.25), main="", col="red", lwd=4)
+
+
+
+
+

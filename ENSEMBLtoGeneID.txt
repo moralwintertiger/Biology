@@ -1,0 +1,52 @@
+#the below R code can be used to generate gene ids for rnaseq files that only have,eg ENSEMBL IDs.
+#It can also be generalized to return chromosome number, position, etc., for a list of input #genes. 
+
+
+
+#install biomaRt:
+
+#from R, paste the following command:
+source("http://bioconductor.org/biocLite.R")
+biocLite("biomaRt")
+
+#import biomaRt libraries:
+library("biomaRt")
+
+#use the useMart() command to connect to specific databases and then to see available datasets:
+ensem = useMart("ensembl")
+listDatasets(ensem)
+
+#determine a dataset to use:
+
+ensem = useDataset("mmusculus_gene_ensembl", mart=ensem)
+
+#read in csv file and change column name to match what is used in biomaRt:
+
+week9 <- read.csv("9_week_infection_input2.csv", row.names=1)
+colnames(week9)[which(names(week9)=="id")] <- "ensembl_gene_id"
+
+#BiomaRt query requires filters, attributes, and values. Filters define a restriction on the #query, eg a specific chromosome. Values are the inputs from our dataset that we want to map the #query to. Attributes are the data that are being related to generate an output. 
+
+#you can list the available filters:
+filters = listFilters(ensem)
+filters[1:10,]
+#set filter: 
+filters = "ensembl_gene_id"
+
+#generate a list of values to use:
+ens_id <- week9$ensembl_gene_id
+
+#getBM. This returns a list of ensembl_gene_id and external_gene_name. The attributes are #identifiers that are 'mapped' to each other. 
+
+ret_names<-getBM(attributes=c('ensembl_gene_id','external_gene_name'),filters='ensembl_gene_id',
+values=ens_id,mart=ensem)
+
+#merge the week9 and ret_names datasets:
+
+week9_merge <- merge(week9,ret_names,by="ensembl_gene_id")
+
+#to gather chromosome names, swap out the second attribute. 
+
+ret_names3<-getBM(attributes=c('ensembl_gene_id','chromosome_name'),filters='ensembl_gene_id',
++ values=ens_id,mart=ensem)
+

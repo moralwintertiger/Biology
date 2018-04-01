@@ -1,0 +1,78 @@
+#datatypes:
+
+tuples: sequence of variables which is immutable. Can be mixed-type and are written with parentheses. Lists are similar but mutable. Both types are iterable. Dictionaries are labeled collections without an ordering. 
+
+'in operator' is a boolean operator that checks if an item is in a list:
+1 in [1, 2, 3]
+
+returning values from a list. Use brackets, which are called 'indexing operator' and can take multiple parameters. First parameter: starting location; second = end of the slice. 
+
+map function: functional programming: all parameters that can change through execution of a function are explicitly declared. Functional programming is therefore said to be side-effect-free. Functional programming methods are often used as a way to chain manipulations together. Map function takes arguments 'function' and 'iterable', then iterates over the iterable(s) with the function. Calling the map function returns a map object- the functions haven't been run until you ask for the specifc output values (lazy evaluation). This allows for very efficient memory management. 
+
+people = ['Dr. Christopher Brooks', 'Dr. Kevyn Collins-Thompson', 'Dr. VG Vinod Vydiswaran', 'Dr. Daniel Romero']
+
+def split_title_and_name(person):
+    title = person.split()[0]
+    lastname = person.split()[-1]
+    return '{} {}'.format(title, lastname)
+
+list(map(split_title_and_name, people))
+
+#reminder, lambda functions:
+
+def my_fn(x,y):
+	return x + y
+#can be simplified as:
+
+my_fn = lambda x,y:x+y
+
+#reminder list comprehension syntax:
+
+def times_tables():
+    lst = []
+    for i in range(10):
+        for j in range (10):
+            lst.append(i*j)
+    return lst
+
+times_tables() == [j*i for i in range(10) for j in range(10)]
+
+#or
+
+lowercase = 'abcdefghijklmnopqrstuvwxyz'
+digits = '0123456789'
+
+correct_answer = [a+b+c+d for a in lowercase for b in lowercase for c in digits for d in digits]
+
+correct_answer[:50] # Display first 50 ids
+
+###some useful numpy functions:
+
+m.shape
+#returns shape of numpy array
+np.arange(a,b,c)
+#gives a list of numbers with min, max, and interval
+n.reshape(a,b)
+#gives an array, reshaped to some set of a,b dimensions.
+np.linspace(a,b,c)
+#gives a list of numbers with min, max, and the number of returned numbers between them
+np.ones(a,b)
+#returns array of ones of size a x b
+np.zeros(a,b)
+np.eye(a,b)
+#returns array of ones on diagonal and zero everywhere else
+np.diag(x)
+#constructs diagonal array
+np.repeat([x],y)
+#generates array with y peformed (eg y copies of) x
+np.vstack([x],y)
+eg np.vstack([array, 2*array])
+#vertically stack copies of an array
+np.hstack
+#stacks arrays horizontally
+z.T
+#swaps rows and columns of array z
+z.astype('f')
+#change data type in array z to floats
+a.argmax and a.argmin
+#find positions of max or min values in an array

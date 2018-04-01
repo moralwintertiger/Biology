@@ -1,0 +1,35 @@
+toxo <- read.csv("ToxoRNAseq030517.csv")
+names(toxo)[2] <- "genes"
+
+names(toxo)[7] <- "Input_Fold_Change"
+
+names(toxo)[9] <- "P_Value"
+library(ggplot2)
+
+toxo1 <- subset(toxo, genes == "Omp")
+toxo2 <- subset(toxo, genes == "Neurog1")
+toxo3 <- subset(toxo, genes == "Gap43")
+%toxo4 <- subset(toxo, genes == "Neurog1")
+toxo5 <- subset(toxo, genes == "Adcy3")
+toxo6 <- subset(toxo, genes == "Cnga2")
+%toxo7 <- subset(toxo, genes == "Cd8a")
+%toxo8 <- subset(toxo, genes == "Cd8b")
+%toxo9 <- subset(toxo, genes == "Cd4")
+%toxo10 <- subset(toxo, genes == "Cd5")
+%toxo11 <- subset(toxo, genes == "Cxcl9")
+
+
+
+
+ggplot(toxo, aes(log10(Input_Fold_Change), (P_Value))) + geom_point(alpha=1/10) + geom_point(data=toxo1, colour="blueviolet") + geom_text(data=toxo1, label="Omp", hjust=-1, vjust=1, cex=5, colour="blueviolet") + geom_point(data=toxo2, colour="blueviolet") + geom_text(data=toxo2, label="Neurog1", vjust=2, hjust=1.1, cex=5, colour="blueviolet")+ 
+
+geom_point(data=toxo3, colour="blueviolet") + geom_text(data=toxo3, label="Gap43", vjust=2, cex=5,colour="blueviolet")+
+
+geom_point(data=toxo5, colour="red") + geom_text(data=toxo5, label="Adcy3", hjust=-.1, vjust=1, cex=5,colour="red")+
+
+geom_point(data=toxo6, colour="red") + geom_text(data=toxo6, label="Cnga2", vjust=-1, hjust=.1, cex=5,colour="red")+
+
+
+
+
+scale_x_continuous(limits = c(-1.5, 2.25)) + scale_y_log10(limits = c(.000000001,1.5 ))

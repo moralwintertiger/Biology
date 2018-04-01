@@ -1,0 +1,100 @@
+#Copy of VRIPinput file, but for no odor samples (VNO)
+
+VNOinput <- read.csv("RDToxo15vsRDToxo16forR.csv", na.strings= c("NA","NaN","","#DIV/0!"))
+
+VNOIP <- read.csv("RDToxo11vsRDToxo12forR.csv", na.strings= c("NA","NaN","","#DIV/0!"))
+
+#type 1/2 VRs for toxo minus ip:
+
+ctlipv1 <- VNOIP %>%
+select(Description,RDToxo12.FPKM) %>%
+filter(str_detect(Description, "vomeronasal 1"))
+
+ctlipv2 <- VNOIP %>%
+select(Description,RDToxo12.FPKM) %>%
+filter(str_detect(Description, "vomeronasal 2"))
+
+#VRs for toxo plus ip
+
+toxoipv1 <- VNOIP %>%
+select(Description,RDToxo11.FPKM) %>%
+filter(str_detect(Description, "vomeronasal 1"))
+
+toxoipv2 <- VNOIP %>%
+select(Description,RDToxo11.FPKM) %>%
+filter(str_detect(Description, "vomeronasal 2"))
+
+#VRs for toxo minus input:
+
+ctlinputv1 <- VNOinput %>%
+select(Description,RDToxo16.FPKM) %>%
+filter(str_detect(Description, "vomeronasal 1"))
+
+ctlinputv2 <- VNOinput %>%
+select(Description,RDToxo16.FPKM) %>%
+filter(str_detect(Description, "vomeronasal 2"))
+
+#VRs for toxo plus input:
+
+toxoinputv1 <- VNOinput %>%
+select(Description,RDToxo15.FPKM) %>%
+filter(str_detect(Description, "vomeronasal 1"))
+
+toxoinputv2 <- VNOinput %>%
+select(Description,RDToxo15.FPKM) %>%
+filter(str_detect(Description, "vomeronasal 2"))
+
+####drop empty values:
+
+ctlip1 <- ctlipv1[ which(ctlipv1$RDToxo12.FPKM >0.001),]
+toxip1 <- toxoipv1[which(toxoipv1$RDToxo11.FPKM > .001),]
+ctlip2 <- ctlipv2[ which(ctlipv2$RDToxo12.FPKM >0.001),]
+toxip2 <- toxoipv2[which(toxoipv2$RDToxo11.FPKM > .001),]
+
+ctlinput1 <- ctlinputv1[ which(ctlinputv1$RDToxo16.FPKM >0.001),]
+toxinput1 <- toxoinputv1[ which(toxoinputv1$RDToxo15.FPKM >0.001),]
+ctlinput2 <- ctlinputv2[ which(ctlinputv2$RDToxo16.FPKM >0.001),]
+toxinput2 <- toxoinputv2[ which(toxoinputv2$RDToxo15.FPKM >0.001),]
+
+######merge datasets
+
+toxofull1 <- merge(toxip1, toxinput1, by="Description")
+toxofull2 <- merge(toxip2, toxinput2, by="Description")
+
+
+ctlfull1 <- merge(ctlip1, ctlinput1, by="Description")
+ctlfull2 <- merge(ctlip2, ctlinput2, by="Description")
+
+#genereate ip/input columns:
+
+ctlfull1$ip.input <- ctlfull1$RDToxo12.FPKM / ctlfull1$RDToxo16.FPKM
+toxofull1$ip.input <- toxofull1$RDToxo11.FPKM / toxofull1$RDToxo15.FPKM
+
+ctlfull2$ip.input <- ctlfull2$RDToxo12.FPKM / ctlfull2$RDToxo16.FPKM
+toxofull2$ip.input <- toxofull2$RDToxo11.FPKM / toxofull2$RDToxo15.FPKM
+
+#log2 columns:
+
+ctlfull1$log <- log(ctlfull1$ip.input, 2)
+toxofull1$log <- log(toxofull1$ip.input, 2)
+
+ctlfull2$log <- log(ctlfull2$ip.input, 2)
+toxofull2$log <- log(toxofull2$ip.input, 2)
+
+#full data, no separation between vr types:
+ctlall <- rbind(ctlfull1, ctlfull2)
+toxoall <- rbind(toxofull1, toxofull2)
+
+##?
+Olfr$log <- log(Olfr$foldChange.IP.input, 2)
+
+library(magrittr)
+library(ggpubr)
+
+plot1 <- ggqqplot(ctlfull1$log, ylab = "Uninfected IP/input", col="red", xlim=c(-3,3), ylim=c(-12,12))
+plot2 <- ggqqplot(toxofull1$log, ylab = "Infected IP/input", col="blue", xlim=c(-3,3), ylim=c(-12,12))
+plot3 <- ggqqplot(ctlfull2$log, ylab = "Uninfected IP/input", col="red", xlim=c(-3,3), ylim=c(-12,12))
+plot4 <- ggqqplot(toxofull2$log, ylab = "Infected IP/input", col="blue", xlim=c(-3,3), ylim=c(-12,12))
+
+plot5 <- ggqqplot(ctlall$log, ylab = "Uninfected IP/input", col="red", xlim=c(-3,3), ylim=c(-12,12))
+plot6 <- ggqqplot(toxoall$log, ylab = "Infected IP/input", col="blue", xlim=c(-3,3), ylim=c(-12,12))

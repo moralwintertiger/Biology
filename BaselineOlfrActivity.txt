@@ -1,0 +1,91 @@
+#the point of this exercise is to generate olfr files from +/- toxo IP/input samples that have not been exposed to odor and to ask whether their baseline activity profiles are different. This can then be compared to the +odor samples.
+
+
+#read in ip and input files:
+
+toxoip <- read.csv("RDToxo01v03.csv", na.strings = c("NA","NaN","","#DIV/0!"))
+
+toxoinput <- read.csv("RDToxo05v07.csv", na.strings = c("NA","NaN","","#DIV/0!"))
+
+#subset out the Olfr rows:
+
+ctlip <- toxoip %>%
+select(geneName,RDToxo03.FPKM) %>%
+filter(str_detect(geneName, "Olfr"))
+
+toxip <- toxoip %>%
+select(geneName,RDToxo01.FPKM) %>%
+filter(str_detect(geneName, "Olfr"))
+
+ctlinput <- toxoinput %>%
+select(geneName,RDToxo07.FPKM) %>%
+filter(str_detect(geneName, "Olfr"))
+
+toxinput <- toxoinput %>%
+select(geneName,RDToxo05.FPKM) %>%
+filter(str_detect(geneName, "Olfr"))
+
+#drop empty cells. In this case, empty is RPKM=.001
+
+ctlip <- ctlip[ which(ctlip$RDToxo03.FPKM >0.001),]
+toxip <- toxip[which(toxip$RDToxo01.FPKM > .001),]
+
+ctlinput <- ctlinput[ which(ctlinput$RDToxo07.FPKM >0.001),]
+toxinput <- toxinput[ which(toxinput$RDToxo05.FPKM >0.001),]
+
+#at this point, dimensions of the above in order are: 530, 674, 1032, 956
+
+#need to merge the input/ip datasets by the geneName. To do so, use the merge function, which will merge by column and only keep common values:
+
+toxofull <- merge(toxip, toxinput, by="geneName")
+dim(toxofull) =645
+
+ctlfull <- merge(ctlip, ctlinput, by="geneName")
+
+#next, generate ip/input columns:
+
+ctlfull$ip.input <- ctlfull$RDToxo03.FPKM / ctlfull$RDToxo07.FPKM
+toxofull$ip.input <- toxofull$RDToxo01.FPKM / toxofull
+
+#generate log2 columns:
+
+ctlfull$log <- log(ctlfull$ip.input, 2)
+toxofull$log <- log(toxofull$ip.input, 2)
+Olfr$log <- log(Olfr$foldChange.IP.input, 2)
+
+#density plots:
+
+dplotctl <- plot(density(ctlfull$log), xlim=c(-10,10), ylim=c(0,.25), main="no odor density plot", col="red")
+par(new=TRUE)
+dplotinf <- plot(density(toxofull$log), xlim=c(-10,10), ylim=c(0,.25), main="no odor density plot", col="blue")
+
+#add ablines:
+abline(v=mean(toxofull$log), col="blue")
+abline(v=mean(ctlfull$log), col="red")
+
+#qq plots:
+ library(ggpubr)
+ plot5 <- ggqqplot(ctlfull$log, ylab = "Uninfected IP/input", col="red", xlim=c(-3,3), ylim=c(-12,12))
+ 
+
+
+#now want to compare uninfected no odor versus odor, and infected no odor versus odor
+#DensityPlotUninfected:
+#uninfected, no odor:
+plot(density(ctlfull$log), xlim=c(-10,10), ylim=c(-0.05,.75), main="Density plot: Uninfected", col="gold", lwd=4)
+par(new=TRUE)
+#uninfected, plus odor:
+plot(density(Uninf$log), col="blue", xlim=c(-10,10), ylim=c(-.05,.75), main="", lwd=4)
+
+
+#DensityPlotInfected:
+#infected, plus odor
+plot(density(Infe$log), col="blue", xlim=c(-10,10), ylim=c(-.05,.75), main="", lwd=4)
+#infected, no odor:
+par(new=TRUE)
+dplotinf <- plot(density(toxofull$log), xlim=c(-10,10), ylim=c(-0.05,.75), main="Density plot: Infected", col="gold", lwd=4)
+
+
+####
+
+

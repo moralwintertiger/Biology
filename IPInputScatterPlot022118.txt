@@ -1,0 +1,192 @@
+#read files into R
+setwd('/Users/meldye/Desktop/RyanR/')
+toxo <- read.csv("ToxoRNAseq030517.csv", na.strings = c("NA","NaN","","#DIV/0!"))
+
+#load libraries
+library(dplyr)
+library(stringr)
+library(ggplot2)
+
+#subset data to look at Olfr gene
+Olfr <- toxo %>%
+select(gene,foldChange.IP.input) %>%
+filter(str_detect(gene, "Olfr"))
+
+#drop empty cells
+Olfr <- na.omit(Olfr)
+
+#drop cells with 0 values
+Olfr <- Olfr[ which(Olfr$foldChange.IP.input >0),]
+
+#convert genes to factors
+Olfr$gene <- factor(Olfr$gene)
+head(Olfr)
+
+#add column with log transformed data
+Olfr$log <- log(Olfr$foldChange.IP.input, 2)
+#for a cool qqplot showing confidence intervals with this data:
+ggqqplot(Olfr$log)
+
+#scatter plot
+ggplot(Olfr, aes(x=gene, y=log)) + geom_point() + ylim(-8,8)
+
+##http://www.sthda.com/english/wiki/ggplot2-scatter-plots-quick-start-guide-r-software-and-data-visualization
+
+
+#####add statistical significance lines to this plot. To do this, use the mean and variance with the number of datapoints in this set to simulate this dataset (100? 10000? times?). Set lines as likelihood of a given value given 100 simulations with this number of datapoints. 
+
+#define a function to generate a random distribution with a given number of point, mean, sd:
+
+rnorm2 <- function(n, mean, sd) {mean+sd*scale(rnorm(n))}
+r <- rnorm2(100,4,1)
+#the above gives a sd of 1.
+
+#convert ip/input values to numeric by unlisting:
+col3 <- as.numeric(unlist(Olfr[3]))
+sd(col3) gives 1.435465
+mean(col3) gives 0.08030195
+
+#using these values to generate a random distribution:
+
+r <- rnorm2(nrow(Olfr), mean(col3), sd(col3))
+
+
+####According to shapiro test in r, IP/input data is not normally distributed and therefore requires non-parametric statistical tests to analyze significance/assess CI, etc. 
+Using the bootstrap package:
+#2000 bootstrap replicates to generate bootstrap confidence intervals:
+b1 <- one.boot(Olfr$log, mean, R=2000)
+boot.ci(b1, type=c("perc", "bca"))
+
+
+#non-parametric test of differences between the ip/input group for infected and uninfected. Will use Mann-whitney test. Need to generate two dataframe ,one for Olfrs from unifected, one for infected:
+
+toxo <- read.csv("ToxoRNAseq030517.csv", na.strings = c("NA","NaN","","#DIV/0!"))
+
+library(dplyr)
+library(stringr)
+library(ggplot2)
+
+#subset out the olfrs:
+
+Uninf <- toxo %>%
+select(gene,IP.input.uninfected) %>%
+filter(str_detect(gene, "Olfr"))
+
+Infe <- toxo %>%
+select(gene,IP.input.infected) %>%
+filter(str_detect(gene, "Olfr"))
+
+Uninf <- na.omit(Uninf)
+Infe <- na.omit(Infe)
+
+Uninf <- Uninf[which(Uninf$IP.input.uninfected >0),]
+Infe <- Infe[ which(Infe$IP.input.infected >0),]
+
+Uninf$gene <- factor(Uninf$gene)
+Infe$gene <- factor(Infe$gene)
+
+#add log2 column:
+
+Uninf$log <- log(Uninf$IP.input.uninfected, 2)
+Infe$log <- log(Infe$IP.input.infected, 2)
+
+#now that datasets are generated, perform mann-whitney to compare distributions:
+
+wilcox.test(Infe$log, Uninf$log)
+
+	Wilcoxon rank sum test with continuity correction
+
+data:  Infe$log and Uninf$log
+W = 539560, p-value = 0.9083
+alternative hypothesis: true location shift is not equal to 0
+
+###according to mann-whitney, this accepts the null hypothesis that a randomly-selected value from one sample will be less than or greater than a randomly-selected value from the other sample. Ie distributions are not different.
+
+##density function of the two distributions:
+#DensityPlotPlusOdorInfUninf
+plot(density(Uninf$log), col="red", xlim=c(-4,4), ylim=c(-.05,.75), main="Density function of IP/input values for Olfrs", lwd=4)
+par(new=TRUE)
+plot(density(Infe$log), col="blue", xlim=c(-4,4), ylim=c(-.05,.75), main="", sub="Red=Uninfected, Blue=Infected", lwd=4)
+
+
+
+###standard deviation for infected sample is lower than for uninfected sample. 
+
+#generate side-by-side qqplots for uninfected versus infected:
+plot1 <- ggqqplot(Uninf$log, ylab="Uninfected IP/input", col="red")
+plot2 <- ggqqplot(Infe$log, ylab="Infected IP/input", col="blue")
+multiplot(plot2,plot2, cols=2)
+
+
+###generate a scatterplot for each of uninfected and infected for comparison.
+
+#generate random scatterplot for each as well. To do so, use r function from above and append dataset to Uninf of Infe data:
+
+rnorm2 <- function(n, mean, sd) {mean+sd*scale(rnorm(n))}
+r <- rnorm2(100,4,1)
+#the above gives a sd of 1.
+#use the above function with values derived from uninf:
+r <- rnorm2(1017, mean(Uninf$log), sd(Uninf$log))
+
+#then append r to the Uninf set.
+Uninf$r <- r
+
+#repeate for Infe: 
+
+r2 <- rnorm2(nrow(Infe), mean(Infe$log), sd(Infe$log))
+Infe$r2 <- r2
+
+#now generate scatterplot w/ 2 columns and 2 rows
+
+plot1 <- ggplot(Uninf, aes(x=gene, y=r)) + geom_point() + ylim(-8,8)
+plot2 <- ggplot(Uninf, aes(x=gene, y=log)) + geom_point() + ylim(-8,8)
+plot3 <- ggplot(Infe, aes(x=gene, y=r2)) + geom_point() + ylim(-8,8)
+plot4 <- ggplot(Infe, aes(x=gene, y=log)) + geom_point() + ylim(-8,8)
+
+#define multiplot function:
+
+multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
+  require(grid)
+
+  # Make a list from the ... arguments and plotlist
+  plots <- c(list(...), plotlist)
+
+  numPlots = length(plots)
+
+  # If layout is NULL, then use 'cols' to determine layout
+  if (is.null(layout)) {
+    # Make the panel
+    # ncol: Number of columns of plots
+    # nrow: Number of rows needed, calculated from # of cols
+    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
+                    ncol = cols, nrow = ceiling(numPlots/cols))
+  }
+
+ if (numPlots==1) {
+    print(plots[[1]])
+
+  } else {
+    # Set up the page
+    grid.newpage()
+    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
+
+    # Make each plot, in the correct location
+    for (i in 1:numPlots) {
+      # Get the i,j matrix positions of the regions that contain this subplot
+      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
+
+      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
+                                      layout.pos.col = matchidx$col))
+    }
+  }
+}
+
+#call multiplot:
+multiplot(plot2, plot4, ncols=2)
+
+#continuous color code for points on volcano plot?
+http://www.sthda.com/english/wiki/ggplot2-colors-how-to-change-colors-automatically-and-manually
+
+
+
+

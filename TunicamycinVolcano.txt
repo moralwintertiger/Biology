@@ -1,0 +1,25 @@
+#Tunicamycin input data volcano plot
+
+input1 <- read.csv("RDToxo041vsRDToxo043foR.csv", na.strings = c("NA","NaN","","#DIV/0!"))
+input2 <- read.csv("RDToxo042vsRDToxo044foR.csv", na.strings = c("NA","NaN","","#DIV/0!"))
+
+names(toxo)[11] <- "genes"
+#add a fold change column:
+toxo$fold_change <- toxo$RDToxo15.FPKM / toxo$RDToxo16.FPKM
+
+names(toxo)[12] <- "Input_Fold_Change"
+
+names(toxo)[9] <- "P_Value"
+library(ggplot2)
+
+toxo1 <- subset(toxo, genes == "chemokine (C-X-C motif) ligand 10")
+toxo2 <- subset(toxo, genes == "integrin alpha M")
+toxo3 <- subset(toxo, genes == "CD19 antigen")
+toxo4 <- subset(toxo, genes == "neuropilin 1")
+toxo5 <- subset(toxo, genes == "cystatin A")
+toxo6 <- subset(toxo, genes == "interferon gamma")
+toxo7 <- subset(toxo, genes == "CD8 antigen, alpha chain")
+#toxo8 <- subset(toxo, genes == "Cd8b")
+toxo9 <- subset(toxo, genes == "CD4 antigen")
+toxo10 <- subset(toxo, genes == "CD5 antigen")
+toxo11 <- subset(toxo, genes == "chemokine (C-X-C motif) ligand 9")

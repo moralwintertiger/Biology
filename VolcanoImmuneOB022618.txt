@@ -1,0 +1,105 @@
+###generate volcano plot for OB and brain datasets to compare to MOE dataset.
+
+toxo <- read.csv("RDToxo020vs026forR.csv")
+toxo <- toxo[ which(toxo$RDToxo020.FPKM  != 0.001),]
+toxo <- toxo[ which(toxo$RDToxo026.FPKM  != 0.001),]
+
+names(toxo)[1] <- "genes"
+#add a fold change column:
+toxo$fold_change <- toxo$RDToxo026.FPKM / toxo$RDToxo020.FPKM
+
+names(toxo)[18] <- "Input_Fold_Change"
+
+names(toxo)[10] <- "P_Value"
+library(ggplot2)
+
+toxo1 <- subset(toxo, genes == "Cxcl10")
+toxo2 <- subset(toxo, genes == "Itgam")
+toxo3 <- subset(toxo, genes == "Cd19")
+toxo4 <- subset(toxo, genes == "Nrp1")
+toxo5 <- subset(toxo, genes == "Stfa2l1")
+toxo6 <- subset(toxo, genes == "Ifng")
+toxo7 <- subset(toxo, genes == "Cd8a")
+toxo8 <- subset(toxo, genes == "Cd8b")
+toxo9 <- subset(toxo, genes == "Cd4")
+toxo10 <- subset(toxo, genes == "Cd5")
+toxo11 <- subset(toxo, genes == "Cxcl9")
+
+
+
+
+ggplot(toxo, aes(log10(Input_Fold_Change), (P_Value))) + geom_point(alpha=1/10) + geom_point(data=toxo1, colour="red") + geom_text(data=toxo1, label="Cxcl10", vjust=-2, cex=5, colour="red") + geom_point(data=toxo2, colour="blueviolet") + geom_text(data=toxo2, label="Itgam", vjust=2, cex=5, colour="blueviolet")+ 
+
+geom_point(data=toxo3, colour="blueviolet") + geom_text(data=toxo3, label="Cd19", vjust=3, cex=5,colour="blueviolet")+
+
+geom_point(data=toxo4, colour="blueviolet") + geom_text(data=toxo4, label="Nrp1", vjust=-1, cex=5,colour="blueviolet")+
+
+geom_point(data=toxo5, colour="blueviolet") + geom_text(data=toxo5, label="Stfa2l1", vjust=2, cex=5,colour="blueviolet")+
+
+geom_point(data=toxo6, colour="red") + geom_text(data=toxo6, label="Ifng", vjust=-1, cex=5,colour="red")+
+
+geom_point(data=toxo7, colour="green4") + geom_text(data=toxo7, label="Cd8a", hjust=1, vjust=-1, cex=5, colour="green4")+
+
+geom_point(data=toxo8, colour="green4") + geom_text(data=toxo8, label="Cd8b", vjust=4, cex=5,colour="green4")+
+
+geom_point(data=toxo9, colour="green4") + geom_text(data=toxo9, label="Cd4", vjust=2, cex=5,colour="green4")+
+
+geom_point(data=toxo10, colour="green4") + geom_text(data=toxo10, label="Cd5", vjust=2, cex=5,colour="green4")+
+
+geom_point(data=toxo11, colour="orange") + geom_text(data=toxo11, label="Cxcl9", vjust=-1, cex=5,colour="orange")+
+
+scale_x_continuous(limits = c(-5, 5)) + scale_y_log10(limits = c(.0000000001,1.5 ))
+
+
+#####OB samples:
+
+###generate volcano plot for brain datasets to compare to MOE dataset.
+
+toxo <- read.csv("RDToxo017vs023forR.csv")
+toxo <- toxo[ which(toxo$RDToxo017.FPKM  != 0.001),]
+toxo <- toxo[ which(toxo$RDToxo023.FPKM  != 0.001),]
+names(toxo)[1] <- "genes"
+#add a fold change column:
+toxo$fold_change <- toxo$RDToxo023.FPKM / toxo$RDToxo017.FPKM
+
+names(toxo)[6] <- "Input_Fold_Change"
+
+names(toxo)[5] <- "P_Value"
+library(ggplot2)
+
+toxo1 <- subset(toxo, genes == "Cxcl10")
+toxo2 <- subset(toxo, genes == "Itgam")
+toxo3 <- subset(toxo, genes == "Cd19")
+toxo4 <- subset(toxo, genes == "Nrp1")
+toxo5 <- subset(toxo, genes == "Stfa2l1")
+toxo6 <- subset(toxo, genes == "Ifng")
+toxo7 <- subset(toxo, genes == "Cd8a")
+toxo8 <- subset(toxo, genes == "Cd8b")
+toxo9 <- subset(toxo, genes == "Cd4")
+toxo10 <- subset(toxo, genes == "Cd5")
+toxo11 <- subset(toxo, genes == "Cxcl9")
+
+
+
+
+ggplot(toxo, aes(log10(Input_Fold_Change), (P_Value))) + geom_point(alpha=1/10) + geom_point(data=toxo1, colour="red") + geom_text(data=toxo1, label="Cxcl10", vjust=-2, cex=5, colour="red") + geom_point(data=toxo2, colour="blueviolet") + geom_text(data=toxo2, label="Itgam", vjust=2, cex=5, colour="blueviolet")+ 
+
+geom_point(data=toxo3, colour="blueviolet") + geom_text(data=toxo3, label="Cd19", vjust=3, cex=5,colour="blueviolet")+
+
+geom_point(data=toxo4, colour="blueviolet") + geom_text(data=toxo4, label="Nrp1", vjust=-1, cex=5,colour="blueviolet")+
+
+geom_point(data=toxo5, colour="blueviolet") + geom_text(data=toxo5, label="Stfa2l1", vjust=2, cex=5,colour="blueviolet")+
+
+geom_point(data=toxo6, colour="red") + geom_text(data=toxo6, label="Ifng", vjust=-1, cex=5,colour="red")+
+
+geom_point(data=toxo7, colour="green4") + geom_text(data=toxo7, label="Cd8a", hjust=1, vjust=-1, cex=5, colour="green4")+
+
+geom_point(data=toxo8, colour="green4") + geom_text(data=toxo8, label="Cd8b", vjust=4, cex=5,colour="green4")+
+
+geom_point(data=toxo9, colour="green4") + geom_text(data=toxo9, label="Cd4", vjust=2, cex=5,colour="green4")+
+
+geom_point(data=toxo10, colour="green4") + geom_text(data=toxo10, label="Cd5", vjust=2, cex=5,colour="green4")+
+
+geom_point(data=toxo11, colour="orange") + geom_text(data=toxo11, label="Cxcl9", vjust=-1, cex=5,colour="orange")+
+
+scale_x_continuous(limits = c(-5, 5)) + scale_y_log10(limits = c(.0000000001,1.5 ))

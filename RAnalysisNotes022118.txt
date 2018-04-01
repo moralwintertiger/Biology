@@ -1,0 +1,183 @@
+#Goal for this pipeline: IP/input plot for all chemoreceptors and then for just TAARs, with baseline=1, above baseline = 2, 4, etc., below baseline= .5, .25, etc. For outliers, add labels. An added bonus would be organizing these data by chromosome. (from a given field, if chr1==true?)
+
+-input full dataset
+-index the olfr rows as an object
+-apply index to generate numeric list of ip/input values
+-plot
+-for items above a given (or below a given) fold change, label (index for ip/inpu>=x value)
+-figure out how to assign p value
+
+#import ToxoRNAseq set:
+toxo <- read.csv("ToxoRNAseq030517.csv")
+#subset columns 2 and 20:
+cols <- c(2,20)
+toxodf <- toxo[,cols]
+
+
+-----------
+#below gives a dataframe of Olfrs with NA values set to zero.
+
+toxo <- read.csv("ToxoRNAseq030517.csv", na.strings = c("NA","NaN","","#DIV/0!"))
+
+library(dplyr)
+library(stringr)
+
+Olfr <- toxo %>%
+select(gene,foldChange.IP.input) %>%
+filter(str_detect(gene, "Olfr"))
+
+Olfr[is.na(Olfr)] <- 0
+
+#next generate a scatterplot that is log2 transformed:
+
+#convert genes to factors
+Olfr$gene <- factor(Olfr$gene)
+head(Olfr)
+
+#add column with log data
+Olfr$log <- log(Olfr$foldChange.IP.input, 2)
+
+#scatter plot
+library(ggplot2)
+ggplot(Olfr, aes(x=gene, y=log)) + geom_point()
+
+##
+
+ggplot(Olfr, aes(x=gene, y=log)) + geom_point() + ylim=c(-20,20)
+
+-----
+#read files into R
+setwd('/Users/meldye/Desktop/RyanR/')
+toxo <- read.csv("ToxoRNAseq030517.csv", na.strings = c("NA","NaN","","#DIV/0!"))
+
+#load libraries
+library(dplyr)
+library(stringr)
+library(ggplot2)
+
+#subset data to look at Olfr gene
+Olfr <- toxo %>%
+select(gene,foldChange.IP.input) %>%
+filter(str_detect(gene, "Olfr"))
+
+#drop empty cells
+Olfr <- na.omit(Olfr)
+
+#drop cells with 0 values
+Olfr <- Olfr[ which(Olfr$foldChange.IP.input >0),]
+
+#convert genes to factors
+Olfr$gene <- factor(Olfr$gene)
+head(Olfr)
+
+#add column with log transformed data
+Olfr$log2 <- log(Olfr$foldChange.IP.input, 2)
+
+#scatter plot
+ggplot(Olfr, aes(x=gene, y=log)) + geom_point() + ylim(-4,4)
+
+##http://www.sthda.com/english/wiki/ggplot2-scatter-plots-quick-start-guide-r-software-and-data-visualization
+
+--------------
+#append TAARs to the Olfr set or plot them on top of the Olfr set. 
+
+#filter toxo dataset to find ORs:
+Taar <- toxo %>%
++ select(gene,foldChange.IP.input) %>%
++ filter(str_detect(gene, "Taar"))
+
+#append Taar and Olfr datasets (this will have to be done with the unmodified Olfr object, prior to adding the log2 column etc.)
+
+OlfrTaar <- rbind(Olfr,Taar)
+
+#then proceed as above. 
+
+---------------
+#plot TAAR dataset on top of Olfr dataset, plus colors.
+
+#after processing Taar dataset, generate a ggplot with colored points:
+
+ggplot(Taarb, aes(x=gene, y=log2_enrichment)) + geom_point(colour="red") + ylim(-8,8)
+
+#plot both datasets together:
+
+ggplot(Olfr, aes(x=gene, y=log)) + geom_point() + ylim(-8,8) + geom_point(data=Taarb, aes(x=gene, y=log2_enrichment)) + geom_point(colour="red")
+
+
+-----
+
+#append Vmn data:
+
+# collect VRs into datafram:
+
+Vmn1 <- toxo %>%
+select(gene,foldChange.IP.input) %>%
+filter(str_detect(gene, "Vmn1"))
+
+Vmn2 <- toxo %>%
+select(gene,foldChange.IP.input) %>%
+filter(str_detect(gene, "Vmn2"))
+
+#then follow up as above.
+
+-----
+
+#Generate a scatterplot in which Olfrs, Taars, and Activity-regulated genes are represented together. 
+
+Arc, Egr1, Egr4, Fos, FosB, Nur77, Nupr1, ActB, OMP, Clgn, Adcy3, Gnal, etc.
+
+toxo1 <- subset(toxo, gene == "Arc")
+toxo2 <- subset(toxo, gene == "Egr1")
+toxo3 <- subset(toxo, gene == "Egr4")
+toxo4 <- subset(toxo, gene == "Fos")
+toxo5 <- subset(toxo, gene == "Fosb")
+toxo6 <- subset(toxo, gene == "Nr4a1")
+toxo7 <- subset(toxo, gene == "Nupr1")
+toxo8 <- subset(toxo, gene == "Adcy3")
+toxo9 <- subset(toxo, gene == "Gnal")
+toxo10 <- subset(toxo, gene == "Omp")
+toxo11 <- subset(toxo, gene == "Slc17a6")
+
+#merge these calls into a single dataframe ActivityGenes
+
+ActivityGenes <- rbind(toxo1, toxo2, toxo3, toxo4, toxo5, toxo6, toxo7)
+
+#generate dataframes for Olfrs, Taars, and Activity genes:
+
+Olfr <- toxo %>%
+select(gene,foldChange.IP.input) %>%
+filter(str_detect(gene, "Olfr"))
+
+Taar <- toxo %>%
+select(gene,foldChange.IP.input) %>%
+filter(str_detect(gene, "Taar"))
+
+ActivityGenes <- ActivityGenes %>%
+select(gene,foldChange.IP.input)
+
+#clean up datasets:
+#omit na:
+
+Olfr <- na.omit(Olfr)
+Taar <- na.omit(Taar)
+ActvityGenes <- na.omit(ActivityGenes)
+
+#drop cells with zero values:
+
+Olfr <- Olfr[ which(Olfr$foldChange.IP.input >0),]
+
+#factor datasets:
+
+Olfr$gene <- factor(Olfr$gene)
+Taar$gene <- factor(Taar$gene)
+ActivityGenes$gene <- factor(ActivityGenes$gene)
+
+#add column with log transformed data
+Olfr$log <- log(Olfr$foldChange.IP.input, 2)
+Taar$log <- log(Taar$foldChange.IP.input, 2)
+ActivityGenes$log <- log(ActivityGenes$foldChange.IP.input, 2)
+
+#scatterplot:
+
+#scatter plot
+ggplot(Olfr, aes(x=gene, y=log)) + geom_point() + ylim(-8,8) 

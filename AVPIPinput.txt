@@ -1,0 +1,53 @@
+##AVP Olfr density plots/qq plots
+## Do shapes of plots match observations from infected animals?
+##Only have IP results, inputs did not work.
+
+noodor <- read.csv("AvpIPNoOdorforR.csv", na.strings = c("NA","NaN","","#DIV/0!"))
+odor <- read.csv("AvpIPOdorforR.csv", na.strings = c("NA","NaN","","#DIV/0!"))
+
+noodor_olfr_pbs <- noodor %>%
+select(gene.name,PBS.baseMeanB) %>%
+filter(str_detect(gene.name, "Olfr"))
+
+noodor_olfr_avp <- noodor %>%
+select(gene.name,AVP.baseMeanA) %>%
+filter(str_detect(gene.name, "Olfr"))
+
+odor_olfr_pbs <- odor %>%
+select(gene.name,PBS.baseMeanB) %>%
+filter(str_detect(gene.name, "Olfr"))
+
+odor_olfr_avp <- odor %>%
+select(gene.name,AVP.baseMeanA) %>%
+filter(str_detect(gene.name, "Olfr"))
+
+noodor_olfr_pbs <- na.omit(noodor_olfr_pbs)
+noodor_olfr_avp <- na.omit(noodor_olfr_avp)
+odor_olfr_pbs <- na.omit(odor_olfr_pbs)
+odor_olfr_avp <- na.omit(odor_olfr_avp)
+
+noodor_olfr_pbs <- noodor_olfr_pbs[which(noodor_olfr_pbs$PBS.baseMeanB != 0),]
+noodor_olfr_avp <- noodor_olfr_avp[which(noodor_olfr_avp$AVP.baseMeanA != 0),]
+odor_olfr_pbs <- odor_olfr_pbs[which(odor_olfr_pbs$PBS.baseMeanB != 0),]
+odor_olfr_avp <- odor_olfr_avp[which(odor_olfr_avp$AVP.baseMeanA != 0),]
+
+noodor_olfr_pbs$log <- log(noodor_olfr_pbs$PBS.baseMeanB, 2)
+noodor_olfr_avp$log <- log(noodor_olfr_avp$AVP.baseMeanA, 2)
+odor_olfr_pbs$log <- log(odor_olfr_pbs$PBS.baseMeanB, 2)
+odor_olfr_avp$log <- log(odor_olfr_avp$AVP.baseMeanA, 2)
+
+noodor_pbs <- plot(density(noodor_olfr_pbs$log), xlim=c(-3,13), ylim=c(0,.25), main="PBS vs AVP, no odor", col="red", lwd=4, xlab="")
+par(new=TRUE)
+noodor_avp <- plot(density(noodor_olfr_avp$log), xlim=c(-3,13), ylim=c(0,.25), main="", col="blue", lwd=4)
+
+odor_pbs <- plot(density(odor_olfr_pbs$log), xlim=c(-3,13), ylim=c(0,.25), main="PBS vs AVP, plus odor", col="red", lwd=4, xlab="")
+par(new=TRUE)
+odor_avp <- plot(density(odor_olfr_avp$log), xlim=c(-3,13), ylim=c(0,.25), main="", col="blue", lwd=4)
+
+noodor_pbs <- plot(density(noodor_olfr_pbs$log), xlim=c(-3,13), ylim=c(0,.25), main="PBS-injected, no odor vs odor", col="purple", lwd=4, xlab="")
+par(new=TRUE)
+odor_pbs <- plot(density(odor_olfr_pbs$log), xlim=c(-3,13), ylim=c(0,.25), main="", col="orange", lwd=4, xlab="")
+
+noodor_avp <- plot(density(noodor_olfr_avp$log), xlim=c(-3,13), ylim=c(0,.25), main="AVP-injected, no odor vs odor", col="purple", lwd=4)
+par(new=TRUE)
+odor_avp <- plot(density(odor_olfr_avp$log), xlim=c(-3,13), ylim=c(0,.25), main="", col="orange", lwd=4)
